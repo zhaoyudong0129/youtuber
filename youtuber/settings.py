@@ -10,6 +10,12 @@
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 import os
 
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+ENVIRONMENT = os.environ.get('ENV', 'local')
+
 BOT_NAME = 'youtuber'
 
 SPIDER_MODULES = ['youtuber.spiders']
@@ -94,7 +100,7 @@ ITEM_PIPELINES = {
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 
-PHANTOMJS_PATH = '/Users/zyd/Downloads/phantomjs-2.1.1-macosx 2/bin/phantomjs'
+# PHANTOMJS_PATH = '/Users/zyd/Downloads/phantomjs-2.1.1-macosx 2/bin/phantomjs'
 
 SCHEDULER = "scrapy_redis.scheduler.Scheduler"
 
@@ -103,4 +109,12 @@ DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
 
 DUPEFILTER_DEBUG = True
 
-DEBUG = True if os.environ.get('DEBUG','true') in ['true','True'] else False
+try:
+    setting_file_name = ENVIRONMENT + '.py'
+    with open(os.path.join(BASE_DIR, 'settings', setting_file_name)) as f:
+        code = compile(f.read(), setting_file_name, 'exec')
+        exec(code, globals())
+except Exception as e:
+    pass
+
+DEBUG = True if os.environ.get('DEBUG', 'true') in ['true', 'True'] else False

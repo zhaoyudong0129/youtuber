@@ -7,6 +7,7 @@ from scrapy import signals
 
 from youtuber import settings
 from youtuber.items import YoutuberLoader, YoutuberItem
+from youtuber.settings import PHANTOMJS_PATH
 from youtuber.utils.common import get_md5
 
 
@@ -21,7 +22,7 @@ class YoutubeSpider(RedisSpider):
         # 每个爬虫绑定一个web driver,降低资源消耗, 与middleware解耦
         # self.browser = webdriver.Chrome(executable_path='/Users/zyd/Downloads/chromedriver')
         self.browser = webdriver.PhantomJS(
-            executable_path='/Users/zyd/Downloads/phantomjs-2.1.1-macosx 2/bin/phantomjs')
+            executable_path=PHANTOMJS_PATH)
         # 释放资源
         dispatcher.connect(self.spider_closed, signals.spider_closed)
         super(YoutubeSpider, self).__init__(**kwargs)
