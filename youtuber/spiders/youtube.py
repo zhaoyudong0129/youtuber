@@ -5,6 +5,7 @@ from selenium import webdriver
 from scrapy.xlib.pydispatch import dispatcher
 from scrapy import signals
 
+from youtuber import settings
 from youtuber.items import YoutuberLoader, YoutuberItem
 from youtuber.utils.common import get_md5
 
@@ -53,14 +54,19 @@ class YoutubeSpider(RedisSpider):
         item = item_loader.load_item()
         yield item
 
+        if settings.DEBUG:
+            with open('page.html', 'w') as f:
+                f.write(response.text)
+
         # 深度优先策略
         # for PhantomJS
         links = response.css('a.yt-uix-tile-link::attr(href)').extract()
 
         # for chrome
         # links = response.css('a.ytd-mini-channel-renderer::attr(href)').extract()
-        for link in links:
-            yield scrapy.Request(url=response.urljoin(link) + '/about', callback=self.parse)
+        if not settings.DEBUG:
+            for link in links:
+                yield scrapy.Request(url=response.urljoin(link) + '/about', callback=self.parse)
 
     def spider_closed(self, spider):
         '''
