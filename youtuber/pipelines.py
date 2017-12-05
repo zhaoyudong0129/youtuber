@@ -4,7 +4,13 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
+import logging
+
+import pymysql
 from scrapy.exporters import JsonItemExporter, CsvItemExporter
+from twisted.enterprise import adbapi
+
+logger = logging.getLogger(__name__)
 
 
 class YoutuberPipeline(object):
@@ -40,3 +46,36 @@ class CSVExportPipeline(object):
     def process_item(self, item, spider):
         self.exporter.export_item(item)
         return item
+
+
+class MysqlTwistPipeline(object):
+    def __init__(self, dbpool):
+        self.dbpool = dbpool
+
+    def process_item(self, item, spider):
+        query = self.dbpool.runInteraction(self.do_insert, item)
+
+        query.addErrback(self.handle_error, item)
+
+    def handle_error(self, failure, item):
+        logger.error(failure)
+        logger.info(item.info())
+
+    def do_insert(self, cursor, item):
+        sql, params = item.get_insert_sql()
+
+        cursor.execute(sql, params)
+
+    @classmethod
+    def from_settings(cls, settings):
+        dbparams = dict(host=settings['MYSQL_HOST'],
+                        db=settings['MYSQL_DB'],
+                        user=settings['MYSQL_USER'],
+                        password=settings['MYSQL_PASSWD'],
+                        charset='utf8mb4',
+                        cursorclass=pymysql.cursors.DictCursor
+                        )
+
+        dbpool = adbapi.ConnectionPool("pymysql", **dbparams)
+
+        return cls(dbpool)

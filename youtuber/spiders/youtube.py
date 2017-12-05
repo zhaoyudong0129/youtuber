@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 import scrapy
+from scrapy_redis.spiders import RedisSpider
 from selenium import webdriver
 from scrapy.xlib.pydispatch import dispatcher
 from scrapy import signals
 
 from youtuber.items import YoutuberLoader, YoutuberItem
+from youtuber.utils.common import get_md5
 
 
-class YoutubeSpider(scrapy.Spider):
+class YoutubeSpider(RedisSpider):
     name = 'youtube'
     allowed_domains = ['www.youtube.com']
+    redis_key = 'youtube:start_urls'
     start_urls = ['https://www.youtube.com/user/PhoneBunch/about']
     user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36'
 
@@ -36,12 +39,16 @@ class YoutubeSpider(scrapy.Spider):
         # youtube个人档案页提取规则 ph
         item_loader.add_css('email', '.about-description pre::text', re='([A-Za-z0-9-_]*@[A-Za-z0-9-_.]*)')
         item_loader.add_css('name', '.branded-page-header-title-link::text')
-        item_loader.add_css('subscriber_count', 'span.about-stat:nth-child(1) b::text', re='([0-9,.]*)')
-        item_loader.add_css('register_date', 'span.about-stat:nth-child(4)::text', re=r'(\d+年\d+月\d+日)')
-        item_loader.add_css('view_count', 'span.about-stat:nth-child(2) b::text', re='([0-9,.]*)')
+        item_loader.add_css('subscriber_count', 'span.about-stat:nth-child(1) b::text')
+        # item_loader.add_css('subscriber_count', 'span.about-stat:nth-child(1) b::text', re='([0-9,.]*)')
+        item_loader.add_css('register_date', 'span.about-stat:nth-child(4)::text')
+        # item_loader.add_css('register_date', 'span.about-stat:nth-child(4)::text', re=r'(\d+年\d+月\d+日)')
+        item_loader.add_css('view_count', 'span.about-stat:nth-child(2) b::text')
+        # item_loader.add_css('view_count', 'span.about-stat:nth-child(2) b::text', re='([0-9,.]*)')
 
         item_loader.add_css('country', '.country-inline::text')
         item_loader.add_value('url', response.url)
+        item_loader.add_value('object_url_id', get_md5(response.url))
 
         item = item_loader.load_item()
         yield item

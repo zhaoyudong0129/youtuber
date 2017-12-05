@@ -77,7 +77,7 @@ class JSPageMiddleware(object):
         browser = spider.browser
         browser.get(request.url)
         download_time = time.clock()
-        # WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.ID, "description-container")))
+        WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.ID, "description-container")))
         js_time = time.clock()
         print('{}:{}'.format(download_time - start, js_time - download_time))
 

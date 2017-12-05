@@ -17,6 +17,7 @@ class YoutuberLoader(ItemLoader):
 class YoutuberItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
+    object_url_id = scrapy.Field()
     url = scrapy.Field()
     name = scrapy.Field(input_processor=MapCompose(lambda x: x.strip()))
     email = scrapy.Field()
@@ -24,6 +25,27 @@ class YoutuberItem(scrapy.Item):
     view_count = scrapy.Field()
     register_date = scrapy.Field()
     country = scrapy.Field(input_processor=MapCompose(lambda x: x.strip()))
+
+    def get_insert_sql(self):
+        sql = '''
+                   insert into youtuber(name,url,object_url_id,email,subscriber_count,country,view_count,register_date)
+                   VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+                   ON DUPLICATE KEY UPDATE 
+                   subscriber_count=VALUES(subscriber_count),view_count=VALUES(view_count)
+                  '''
+
+        params = (
+            self['name'][:200],
+            self.get('url', ''),
+            self.get('object_url_id', ''),
+            self.get('email', ''),
+            self.get('subscriber_count', 0),
+            self.get('country', 0),
+            self.get('view_count', 0),
+            self.get('register_date', ''),
+        )
+
+        return sql, params
 
 
 if __name__ == '__main__':
