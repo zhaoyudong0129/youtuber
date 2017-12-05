@@ -102,6 +102,8 @@ ITEM_PIPELINES = {
 
 # PHANTOMJS_PATH = '/Users/zyd/Downloads/phantomjs-2.1.1-macosx 2/bin/phantomjs'
 
+PHANTOMJS_PATH = '/root/youtuber/phantomjs-2.1.1-linux-x86_64/bin/phantomjs'
+
 SCHEDULER = "scrapy_redis.scheduler.Scheduler"
 
 # Ensure all spiders share same duplicates filter through redis.
