@@ -3,7 +3,6 @@
 ### Python template
 # Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[cod]
 *$py.class
 
 # C extensions
@@ -109,3 +108,5 @@ venv.bak/
 *.csv
 *.json
 .idea/
+phantomjs-2.1.1-linux-x86_64*
+Twisted-17.9.0*
