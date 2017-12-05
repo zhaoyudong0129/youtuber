@@ -55,9 +55,9 @@ class YoutubeSpider(RedisSpider):
         item = item_loader.load_item()
         yield item
 
-        if settings.DEBUG:
-            with open('page.html', 'w') as f:
-                f.write(response.text)
+        # if settings.DEBUG:
+        with open('page.html', 'w') as f:
+            f.write(response.text)
 
         # 深度优先策略
         # for PhantomJS
